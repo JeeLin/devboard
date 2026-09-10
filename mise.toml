@@ -1,0 +1,17 @@
+[tools]
+rust = "stable"
+
+[tasks]
+build = "cargo build"
+release = "cargo build --release"
+test = "cargo test"
+test-ignored = "cargo test -- --ignored"
+clippy = "cargo clippy -- -D warnings"
+fmt = "cargo fmt --check"
+fmt-fix = "cargo fmt"
+audit = "cargo audit"
+check = "cargo check"
+clean = "cargo clean"
+
+# Quality gate: compile + lint + test
+gate = { depends = ["check", "clippy", "test"] }
