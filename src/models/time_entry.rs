@@ -90,3 +90,21 @@ pub fn get_time_stats(conn: &DbConn) -> Result<Vec<(String, i64)>> {
         .collect::<std::result::Result<Vec<_>, _>>()?;
     Ok(stats)
 }
+
+/// Get daily time summary grouped by actor for a specific date.
+pub fn get_daily_time_summary(
+    conn: &DbConn,
+    date: chrono::NaiveDate,
+) -> Result<Vec<(String, i64)>> {
+    let start = format!("{} 00:00:00", date);
+    let end = format!("{} 23:59:59", date);
+    let mut stmt = conn.prepare(
+        "SELECT actor, SUM(duration) as total FROM time_entries WHERE created_at BETWEEN ?1 AND ?2 GROUP BY actor ORDER BY actor",
+    )?;
+    let stats = stmt
+        .query_map(params![start, end], |row| {
+            Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?))
+        })?
+        .collect::<std::result::Result<Vec<_>, _>>()?;
+    Ok(stats)
+}

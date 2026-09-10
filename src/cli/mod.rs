@@ -1,8 +1,9 @@
+use clap::{Parser, Subcommand};
+
 pub mod milestone;
 pub mod project;
 pub mod task;
-
-use clap::{Parser, Subcommand};
+pub mod time;
 
 #[derive(Parser)]
 #[command(
@@ -26,4 +27,7 @@ pub enum Commands {
     /// Manage tasks
     #[command(subcommand)]
     Task(task::TaskArgs),
+    /// Time tracking
+    #[command(subcommand)]
+    Time(time::TimeCommands),
 }

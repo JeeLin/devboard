@@ -3,7 +3,7 @@ use crate::models::task;
 use clap::Subcommand;
 use std::path::PathBuf;
 
-fn get_db() -> crate::error::Result<(rusqlite::Connection, PathBuf)> {
+pub(crate) fn get_db() -> crate::error::Result<(rusqlite::Connection, PathBuf)> {
     let db_path = dirs::home_dir()
         .unwrap_or_else(|| PathBuf::from("."))
         .join(".devboard")
