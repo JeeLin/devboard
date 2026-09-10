@@ -316,8 +316,8 @@ devboard task update <id> --status done  # 更新状态
 devboard task link <id> --doc docs/login-design.md  # 关联文档
 
 # 工时记录
-devboard time start <id> --actor ai      # 开始计时（显式指定 actor）
-devboard time stop                    # 停止计时
+devboard task time log <id> --actor ai      # 记录工时（指定 actor）
+devboard task time log <id> 1.5h --note                    # 带备注记录工时
 devboard time log <id> --duration 2h 30m  # 手动补录
 devboard time stats                   # 工时统计（按 actor 分组）
 # 文档操作
@@ -385,7 +385,7 @@ Skill 提供 AI 使用说明：参数格式、返回结构、最佳实践。
 
 ### v0.2 — 好用
 
-- 任务计时 + 手动补录
+- 手动工时记录（智能时间解析、快速录入）
 - 日工时汇总
 - 看板视图
 
