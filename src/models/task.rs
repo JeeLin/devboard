@@ -153,6 +153,7 @@ pub struct Task {
     pub acceptance_criteria: Option<String>,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub total_time_seconds: i64,
 }
 
 impl Task {
@@ -187,11 +188,12 @@ impl Task {
                 .unwrap_or_default(),
             updated_at: NaiveDateTime::parse_from_str(&updated_at_str, "%Y-%m-%d %H:%M:%S")
                 .unwrap_or_default(),
+            total_time_seconds: row.get(19)?,
         })
     }
 }
 
-const TASK_COLUMNS: &str = "id, project_id, milestone_id, parent_id, type, title, description, assignee, due_date, status, priority, steps_to_reproduce, severity, environment, actor, user_story, acceptance_criteria, created_at, updated_at";
+const TASK_COLUMNS: &str = "id, project_id, milestone_id, parent_id, type, title, description, assignee, due_date, status, priority, steps_to_reproduce, severity, environment, actor, user_story, acceptance_criteria, created_at, updated_at, total_time_seconds";
 
 pub fn list_tasks(
     conn: &DbConn,
