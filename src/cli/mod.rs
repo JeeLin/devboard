@@ -1,16 +1,13 @@
 use clap::{Parser, Subcommand};
 
-pub mod milestone;
 pub mod project;
+pub mod milestone;
 pub mod task;
 pub mod time;
+pub mod doc;
 
 #[derive(Parser)]
-#[command(
-    name = "devboard",
-    version,
-    about = "AI-driven project management tool"
-)]
+#[command(name = "devboard", version, about = "AI-driven project management tool")]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
@@ -30,4 +27,7 @@ pub enum Commands {
     /// Time tracking
     #[command(subcommand)]
     Time(time::TimeCommands),
+    /// Manage documents
+    #[command(subcommand)]
+    Doc(doc::DocArgs),
 }

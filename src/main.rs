@@ -14,5 +14,6 @@ fn main() {
         Commands::Milestone(args) => cli::milestone::handle(args),
         Commands::Task(args) => cli::task::handle(args),
         Commands::Time(args) => cli::time::handle(args),
+        Commands::Doc(args) => cli::doc::handle(args),
     }
 }
