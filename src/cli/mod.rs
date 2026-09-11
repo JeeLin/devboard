@@ -8,6 +8,7 @@ pub mod doc;
 pub mod search;
 pub mod tag;
 pub mod note;
+pub mod template;
 
 #[derive(Parser)]
 #[command(name = "devboard", version, about = "AI-driven project management tool")]
@@ -41,4 +42,7 @@ pub enum Commands {
     /// Quick notes
     #[command(subcommand)]
     Note(note::NoteArgs),
+    /// Task templates
+    #[command(subcommand)]
+    Template(template::TemplateArgs),
 }

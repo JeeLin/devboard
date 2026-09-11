@@ -7,3 +7,5 @@ pub mod time_entry;
 pub mod document;
 
 pub mod tag;
+
+pub mod template;

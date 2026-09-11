@@ -20,5 +20,6 @@ fn main() {
         Commands::Search(args) => cli::search::handle(args),
         Commands::Tag(args) => cli::tag::handle(args),
         Commands::Note(args) => cli::note::handle(args),
+        Commands::Template(args) => cli::template::handle(args),
     }
 }

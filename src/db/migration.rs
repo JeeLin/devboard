@@ -149,7 +149,7 @@ mod tests {
                 row.get(0)
             })
             .unwrap();
-        assert_eq!(count, 2);
+        assert_eq!(count, 3);
     }
 
     #[test]
@@ -163,7 +163,7 @@ mod tests {
                 row.get(0)
             })
             .unwrap();
-        assert_eq!(count, 2);
+        assert_eq!(count, 3);
     }
 
     #[test]
@@ -189,5 +189,6 @@ mod tests {
         assert!(tables.contains(&"tags".to_string()));
         assert!(tables.contains(&"task_tags".to_string()));
         assert!(tables.contains(&"document_tags".to_string()));
+        assert!(tables.contains(&"task_templates".to_string()));
     }
 }
