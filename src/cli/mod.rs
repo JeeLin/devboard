@@ -5,6 +5,7 @@ pub mod milestone;
 pub mod task;
 pub mod time;
 pub mod doc;
+pub mod search;
 
 #[derive(Parser)]
 #[command(name = "devboard", version, about = "AI-driven project management tool")]
@@ -30,4 +31,6 @@ pub enum Commands {
     /// Manage documents
     #[command(subcommand)]
     Doc(doc::DocArgs),
+    /// Full-text search
+    Search(search::SearchArgs),
 }

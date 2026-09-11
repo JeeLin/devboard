@@ -15,5 +15,6 @@ fn main() {
         Commands::Task(args) => cli::task::handle(args),
         Commands::Time(args) => cli::time::handle(args),
         Commands::Doc(args) => cli::doc::handle(args),
+        Commands::Search(args) => cli::search::handle(args),
     }
 }

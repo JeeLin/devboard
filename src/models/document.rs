@@ -115,3 +115,17 @@ pub fn search_documents(conn: &DbConn, query: &str) -> Result<Vec<Document>> {
         .collect::<std::result::Result<Vec<_>, _>>()?;
     Ok(docs)
 }
+
+pub fn search_documents_fts(conn: &DbConn, query: &str) -> Result<Vec<Document>> {
+    let mut stmt = conn.prepare(&format!(
+        "SELECT d.{} FROM documents d 
+         JOIN documents_fts fts ON d.id = fts.rowid 
+         WHERE documents_fts MATCH ?1 
+         ORDER BY rank LIMIT 20",
+        DOC_COLUMNS
+    ))?;
+    let docs = stmt
+        .query_map(params![query], Document::from_row)?
+        .collect::<std::result::Result<Vec<_>, _>>()?;
+    Ok(docs)
+}
