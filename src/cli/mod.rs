@@ -7,6 +7,7 @@ pub mod time;
 pub mod doc;
 pub mod search;
 pub mod tag;
+pub mod note;
 
 #[derive(Parser)]
 #[command(name = "devboard", version, about = "AI-driven project management tool")]
@@ -37,4 +38,7 @@ pub enum Commands {
     /// Manage tags
     #[command(subcommand)]
     Tag(tag::TagArgs),
+    /// Quick notes
+    #[command(subcommand)]
+    Note(note::NoteArgs),
 }
