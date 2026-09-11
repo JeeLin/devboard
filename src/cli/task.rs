@@ -70,6 +70,12 @@ pub enum TaskArgs {
         /// Task ID
         id: i64,
     },
+    /// List subtasks for a task
+    Subtasks {
+        /// Parent task ID
+        #[arg(short, long)]
+        parent: i64,
+    },
     /// Change task status
     Status {
         /// Task ID
@@ -167,6 +173,21 @@ pub fn handle(args: TaskArgs) {
         TaskArgs::Delete { id } => match task::delete_task(&conn, id) {
             Ok(()) => println!("Deleted task {}", id),
             Err(e) => eprintln!("Error: {}", e),
+        },
+        TaskArgs::Subtasks { parent } => {
+            match task::list_subtasks(&conn, parent) {
+                Ok(tasks) => {
+                    if tasks.is_empty() {
+                        println!("No subtasks found for task {}", parent);
+                    } else {
+                        println!("Subtasks for task {}:", parent);
+                        for t in &tasks {
+                            println!("  [{}] {} ({})", t.id, t.title, t.status.as_str());
+                        }
+                    }
+                }
+                Err(e) => eprintln!("Error: {}", e),
+            }
         },
         TaskArgs::Status { id, new_status } => {
             match task::transition_status(&conn, id, &new_status) {

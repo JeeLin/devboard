@@ -330,3 +330,29 @@ pub fn transition_status(conn: &DbConn, id: i64, new_status: &str) -> Result<Tas
     )?;
     get_task(conn, id)
 }
+
+pub fn list_subtasks(conn: &DbConn, parent_id: i64) -> Result<Vec<Task>> {
+    let mut stmt = conn.prepare(&format!(
+        "SELECT {} FROM tasks WHERE parent_id = ?1 ORDER BY created_at DESC",
+        TASK_COLUMNS
+    ))?;
+    let tasks = stmt
+        .query_map(params![parent_id], Task::from_row)?
+        .collect::<std::result::Result<Vec<_>, _>>()?;
+    Ok(tasks)
+}
+
+#[allow(dead_code)]
+pub fn get_task_tree(conn: &DbConn, task_id: i64) -> Result<Vec<Task>> {
+    let mut result = Vec::new();
+    let task = get_task(conn, task_id)?;
+    result.push(task);
+    
+    let children = list_subtasks(conn, task_id)?;
+    for child in children {
+        let mut subtree = get_task_tree(conn, child.id)?;
+        result.append(&mut subtree);
+    }
+    
+    Ok(result)
+}
