@@ -3,6 +3,8 @@ mod db;
 mod error;
 mod models;
 mod tui;
+#[allow(dead_code)]
+mod charts;
 
 use clap::Parser;
 use cli::{Cli, Commands};
