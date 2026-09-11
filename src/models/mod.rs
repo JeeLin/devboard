@@ -5,3 +5,5 @@ pub mod task;
 pub mod time_entry;
 #[allow(dead_code)]
 pub mod document;
+
+pub mod tag;

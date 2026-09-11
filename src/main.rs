@@ -18,5 +18,6 @@ fn main() {
         Commands::Time(args) => cli::time::handle(args),
         Commands::Doc(args) => cli::doc::handle(args),
         Commands::Search(args) => cli::search::handle(args),
+        Commands::Tag(args) => cli::tag::handle(args),
     }
 }
