@@ -105,6 +105,18 @@ const MIGRATIONS: &[(&str, &str)] = &[(
             FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
         );
     "#),
+    ("006_templates", r#"
+        CREATE TABLE IF NOT EXISTS task_templates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            task_type TEXT NOT NULL DEFAULT 'task',
+            title_template TEXT NOT NULL,
+            description_template TEXT DEFAULT '',
+            default_priority TEXT DEFAULT 'normal',
+            default_actor TEXT DEFAULT 'human',
+            created_at DATETIME NOT NULL DEFAULT (datetime('now'))
+        );
+    "#),
 ];
 
 pub fn run_migrations(conn: &Connection) -> Result<()> {
