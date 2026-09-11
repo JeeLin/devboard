@@ -5,6 +5,7 @@ mod models;
 mod tui;
 #[allow(dead_code)]
 mod charts;
+mod sync;
 
 use clap::Parser;
 use cli::{Cli, Commands};
@@ -22,5 +23,6 @@ fn main() {
         Commands::Note(args) => cli::note::handle(args),
         Commands::Template(args) => cli::template::handle(args),
         Commands::Chart(args) => cli::chart::handle(args),
+        Commands::Sync(args) => cli::sync::handle(args),
     }
 }

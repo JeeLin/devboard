@@ -10,6 +10,7 @@ pub mod tag;
 pub mod note;
 pub mod template;
 pub mod chart;
+pub mod sync;
 
 #[derive(Parser)]
 #[command(name = "devboard", version, about = "AI-driven project management tool")]
@@ -49,4 +50,7 @@ pub enum Commands {
     /// Charts
     #[command(subcommand)]
     Chart(chart::ChartCommands),
+    /// Sync data
+    #[command(subcommand)]
+    Sync(sync::SyncCommands),
 }
