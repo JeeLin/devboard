@@ -36,6 +36,21 @@ pub enum TimeCommands {
         #[arg(short, long)]
         date: Option<String>,
     },
+    /// Show weekly time report
+    Weekly {
+        /// Start date (YYYY-MM-DD), defaults to this week's start
+        #[arg(short, long)]
+        date: Option<String>,
+    },
+    /// Show monthly time report
+    Monthly {
+        /// Year (YYYY), defaults to current year
+        #[arg(short, long)]
+        year: Option<i32>,
+        /// Month (1-12), defaults to current month
+        #[arg(short, long)]
+        month: Option<u32>,
+    },
 }
 
 fn parse_time_duration(s: &str) -> crate::error::Result<i64> {
@@ -146,5 +161,76 @@ pub fn handle(args: TimeCommands) {
                 Err(e) => eprintln!("Error: {}", e),
             }
         }
+        TimeCommands::Weekly { date } => {
+            handle_weekly_report(date);
+        }
+        TimeCommands::Monthly { year, month } => {
+            handle_monthly_report(year, month);
+        }
+    }
+}
+
+pub fn handle_weekly_report(start_date: Option<String>) {
+    let (conn, _) = match get_db() {
+        Ok(v) => v,
+        Err(e) => { eprintln!("Error: {}", e); return; }
+    };
+
+    let today = chrono::Local::now().format("%Y-%m-%d").to_string();
+    let target_date = start_date.as_deref().unwrap_or(&today);
+    let date_naive = match chrono::NaiveDate::parse_from_str(target_date, "%Y-%m-%d") {
+        Ok(d) => d,
+        Err(_) => { eprintln!("Invalid date format: {}", target_date); return; }
+    };
+
+    println!("=== Weekly Report (starting {}) ===\n", target_date);
+    match time_entry::get_weekly_summary(&conn, date_naive) {
+        Ok(stats) => {
+            if stats.is_empty() {
+                println!("No time entries for this week.");
+            } else {
+                println!("{:<10} {:>10}", "Actor", "Hours");
+                println!("{}", "-".repeat(22));
+                let mut total = 0i64;
+                for (actor, secs) in &stats {
+                    println!("{:<10} {:>10.1}h", actor, *secs as f64 / 3600.0);
+                    total += secs;
+                }
+                println!("{}", "-".repeat(22));
+                println!("{:<10} {:>10.1}h", "Total", total as f64 / 3600.0);
+            }
+        }
+        Err(e) => eprintln!("Error: {}", e),
+    }
+}
+
+pub fn handle_monthly_report(year: Option<i32>, month: Option<u32>) {
+    let (conn, _) = match get_db() {
+        Ok(v) => v,
+        Err(e) => { eprintln!("Error: {}", e); return; }
+    };
+
+    let now = chrono::Local::now();
+    let target_year = year.unwrap_or(now.format("%Y").to_string().parse().unwrap());
+    let target_month = month.unwrap_or(now.format("%m").to_string().parse().unwrap());
+
+    println!("=== Monthly Report for {}-{:02} ===\n", target_year, target_month);
+    match time_entry::get_monthly_summary(&conn, target_year, target_month) {
+        Ok(stats) => {
+            if stats.is_empty() {
+                println!("No time entries for this month.");
+            } else {
+                println!("{:<10} {:>10}", "Actor", "Hours");
+                println!("{}", "-".repeat(22));
+                let mut total = 0i64;
+                for (actor, secs) in &stats {
+                    println!("{:<10} {:>10.1}h", actor, *secs as f64 / 3600.0);
+                    total += secs;
+                }
+                println!("{}", "-".repeat(22));
+                println!("{:<10} {:>10.1}h", "Total", total as f64 / 3600.0);
+            }
+        }
+        Err(e) => eprintln!("Error: {}", e),
     }
 }

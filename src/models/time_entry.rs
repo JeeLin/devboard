@@ -108,3 +108,45 @@ pub fn get_daily_time_summary(
         .collect::<std::result::Result<Vec<_>, _>>()?;
     Ok(stats)
 }
+
+pub fn get_weekly_summary(conn: &DbConn, start_date: chrono::NaiveDate) -> Result<Vec<(String, i64)>> {
+    let end_date = start_date + chrono::Duration::days(7);
+    let mut stmt = conn.prepare(
+        "SELECT actor, SUM(duration) as total FROM time_entries 
+         WHERE date(created_at) >= ?1 AND date(created_at) < ?2 
+         GROUP BY actor ORDER BY actor"
+    )?;
+    let start_str = start_date.format("%Y-%m-%d").to_string();
+    let end_str = end_date.format("%Y-%m-%d").to_string();
+    let stats = stmt
+        .query_map(rusqlite::params![start_str, end_str], |row| {
+            Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?))
+        })?
+        .collect::<std::result::Result<Vec<_>, _>>()?;
+    Ok(stats)
+}
+
+pub fn get_monthly_summary(conn: &DbConn, year: i32, month: u32) -> Result<Vec<(String, i64)>> {
+    let start_date = chrono::NaiveDate::from_ymd_opt(year, month, 1)
+        .ok_or_else(|| DevBoardError::InvalidInput("Invalid date".to_string()))?;
+    let end_date = if month == 12 {
+        chrono::NaiveDate::from_ymd_opt(year + 1, 1, 1)
+    } else {
+        chrono::NaiveDate::from_ymd_opt(year, month + 1, 1)
+    }
+    .ok_or_else(|| DevBoardError::InvalidInput("Invalid date".to_string()))?;
+    
+    let mut stmt = conn.prepare(
+        "SELECT actor, SUM(duration) as total FROM time_entries 
+         WHERE date(created_at) >= ?1 AND date(created_at) < ?2 
+         GROUP BY actor ORDER BY actor"
+    )?;
+    let start_str = start_date.format("%Y-%m-%d").to_string();
+    let end_str = end_date.format("%Y-%m-%d").to_string();
+    let stats = stmt
+        .query_map(rusqlite::params![start_str, end_str], |row| {
+            Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?))
+        })?
+        .collect::<std::result::Result<Vec<_>, _>>()?;
+    Ok(stats)
+}
