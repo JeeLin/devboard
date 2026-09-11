@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.4.0] - 2024-09-11
+
+### Added
+- 标签系统：任务/文档标签分类与过滤
+- 文档关联任务：双向关联查询
+- 快速笔记：一键创建临时笔记，按日期归档
+- 任务模板：预定义模板快速创建任务
+- 图表批量导出：支持 SVG/CSV 格式导出
+
+
+
 ## [0.3.0] - 2024-09-11
 
 ### Added

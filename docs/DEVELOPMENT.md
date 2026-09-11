@@ -153,7 +153,7 @@ CREATE VIRTUAL TABLE documents_fts USING fts5(
 - 周/月报表
 - 图表（甘特图 / 燃尽图 / 工时分布 / 任务状态 / 里程碑进度 / AI vs 人贡献）
 
-### v0.4 — 增强
+### v0.4 — 增强 ✅ 已完成
 
 - 标签系统
 - 文档关联任务
