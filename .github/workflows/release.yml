@@ -1,0 +1,83 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  release:
+    name: Build Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      
+      - name: Get version from tag
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+      
+      - name: Build release
+        run: cargo build --release
+      
+      - name: Run tests
+        run: cargo test
+      
+      - name: Prepare release assets
+        run: |
+          mkdir -p release
+          cp target/release/devboard release/
+          cp README.md release/
+          cp LICENSE-MIT release/ 2>/dev/null || true
+          cp CHANGELOG.md release/ 2>/dev/null || true
+          cp -r skills release/ 2>/dev/null || true
+      
+      - name: Create ZIP archive
+        run: |
+          cd release
+          zip -r ../devboard-${{ steps.version.outputs.VERSION }}-linux-x86_64.zip .
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref }}
+          name: DevBoard ${{ steps.version.outputs.VERSION }}
+          body: |
+            AI 驱动的项目管理工具
+            
+            ## 功能
+            - 项目/里程碑/任务管理
+            - 时间追踪与报表
+            - Markdown 文档系统
+            - 全文搜索 (FTS5)
+            - 标签、模板、图表
+            - Git/WebDAV 同步
+            
+            ## 安装
+            ```bash
+            # Linux
+            unzip devboard-${{ steps.version.outputs.VERSION }}-linux-x86_64.zip
+            sudo mv devboard /usr/local/bin/
+            
+            # 或从源码构建
+            cargo install --path .
+            ```
+          files: devboard-${{ steps.version.outputs.VERSION }}-linux-x86_64.zip
