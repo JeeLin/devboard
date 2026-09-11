@@ -138,7 +138,7 @@ CREATE VIRTUAL TABLE documents_fts USING fts5(
 - SQLite 数据层（schema + 迁移）
 - CLI 基础命令（task list / add / update / delete）
 
-### v0.2 — 好用 ← 新增（下一步）
+### v0.2 — 好用 ✅ 已完成
 
 - 任务计时 + 手动补录
 - 日工时汇总
