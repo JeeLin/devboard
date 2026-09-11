@@ -144,7 +144,7 @@ CREATE VIRTUAL TABLE documents_fts USING fts5(
 - 日工时汇总
 - 看板视图
 
-### v0.3 — 完整
+### v0.3 — 完整 ← 新增（下一步）
 
 - Markdown 文档（任务扩展上下文）
 - 文档看板（草稿→评审→发布→归档）
