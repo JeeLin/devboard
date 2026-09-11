@@ -41,6 +41,29 @@ pub enum DocArgs {
         id: i64,
         status: String,
     },
+    /// Link document to task
+    Link {
+        /// Document ID
+        #[arg(short = 'd', long)]
+        doc: i64,
+        /// Task ID
+        #[arg(short = 't', long)]
+        task: i64,
+    },
+    /// Unlink document from task
+    Unlink {
+        /// Document ID
+        #[arg(short = 'd', long)]
+        doc: i64,
+        /// Task ID
+        #[arg(short = 't', long)]
+        task: i64,
+    },
+    /// List tasks linked to document
+    ListTasks {
+        /// Document ID
+        id: i64,
+    },
 }
 
 pub fn handle(args: DocArgs) {
@@ -88,6 +111,33 @@ pub fn handle(args: DocArgs) {
         DocArgs::Status { id, status } => {
             match document::update_document_status(&conn, id, &status) {
                 Ok(doc) => println!("Updated document '{}' status to {}", doc.title, doc.status),
+                Err(e) => eprintln!("Error: {}", e),
+            }
+        }
+        DocArgs::Link { doc, task } => {
+            match document::link_document_to_task(&conn, doc, task) {
+                Ok(()) => println!("Linked document {} to task {}", doc, task),
+                Err(e) => eprintln!("Error: {}", e),
+            }
+        }
+        DocArgs::Unlink { doc, task } => {
+            match document::unlink_document_from_task(&conn, doc, task) {
+                Ok(()) => println!("Unlinked document {} from task {}", doc, task),
+                Err(e) => eprintln!("Error: {}", e),
+            }
+        }
+        DocArgs::ListTasks { id } => {
+            match document::list_tasks_by_document(&conn, id) {
+                Ok(task_ids) => {
+                    if task_ids.is_empty() {
+                        println!("No tasks linked to document {}", id);
+                    } else {
+                        println!("Tasks linked to document {}:", id);
+                        for tid in &task_ids {
+                            println!("  Task {}", tid);
+                        }
+                    }
+                }
                 Err(e) => eprintln!("Error: {}", e),
             }
         }

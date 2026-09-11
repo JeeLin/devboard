@@ -129,3 +129,41 @@ pub fn search_documents_fts(conn: &DbConn, query: &str) -> Result<Vec<Document>>
         .collect::<std::result::Result<Vec<_>, _>>()?;
     Ok(docs)
 }
+
+pub fn link_document_to_task(conn: &DbConn, document_id: i64, task_id: i64) -> Result<()> {
+    conn.execute(
+        "INSERT OR IGNORE INTO document_links (document_id, task_id) VALUES (?1, ?2)",
+        params![document_id, task_id],
+    )?;
+    Ok(())
+}
+
+pub fn unlink_document_from_task(conn: &DbConn, document_id: i64, task_id: i64) -> Result<()> {
+    conn.execute(
+        "DELETE FROM document_links WHERE document_id = ?1 AND task_id = ?2",
+        params![document_id, task_id],
+    )?;
+    Ok(())
+}
+
+pub fn list_documents_by_task_id(conn: &DbConn, task_id: i64) -> Result<Vec<Document>> {
+    let mut stmt = conn.prepare(&format!(
+        "SELECT d.{} FROM documents d 
+         JOIN document_links dl ON d.id = dl.document_id 
+         WHERE dl.task_id = ?1 
+         ORDER BY d.created_at DESC",
+        DOC_COLUMNS
+    ))?;
+    let docs = stmt
+        .query_map(params![task_id], Document::from_row)?
+        .collect::<std::result::Result<Vec<_>, _>>()?;
+    Ok(docs)
+}
+
+pub fn list_tasks_by_document(conn: &DbConn, document_id: i64) -> Result<Vec<i64>> {
+    let mut stmt = conn.prepare("SELECT task_id FROM document_links WHERE document_id = ?1")?;
+    let task_ids = stmt
+        .query_map(params![document_id], |row| row.get(0))?
+        .collect::<std::result::Result<Vec<_>, _>>()?;
+    Ok(task_ids)
+}
