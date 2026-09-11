@@ -21,5 +21,6 @@ fn main() {
         Commands::Tag(args) => cli::tag::handle(args),
         Commands::Note(args) => cli::note::handle(args),
         Commands::Template(args) => cli::template::handle(args),
+        Commands::Chart(args) => cli::chart::handle(args),
     }
 }

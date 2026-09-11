@@ -9,6 +9,7 @@ pub mod search;
 pub mod tag;
 pub mod note;
 pub mod template;
+pub mod chart;
 
 #[derive(Parser)]
 #[command(name = "devboard", version, about = "AI-driven project management tool")]
@@ -45,4 +46,7 @@ pub enum Commands {
     /// Task templates
     #[command(subcommand)]
     Template(template::TemplateArgs),
+    /// Charts
+    #[command(subcommand)]
+    Chart(chart::ChartCommands),
 }
