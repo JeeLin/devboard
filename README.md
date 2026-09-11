@@ -194,6 +194,16 @@ devboard sync external status
 devboard sync external start
 ```
 
+## AI Skill / AI 技能
+
+本项目提供 `devboard` skill，供 AI agent 使用 DevBoard 管理项目。
+
+AI agent 安装此 skill 后，可通过自然语言指令自动执行：任务创建、工时记录、文档关联、数据同步等操作。
+
+Skill 位置：`skills/devboard/SKILL.md`
+
+详细命令参考见下方「CLI 命令一览」。
+
 ## 目录结构 / Directory Structure
 
 ```
