@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.0] - 2024-09-11
+
+### Added
+- Markdown 文档系统：支持任务关联文档
+- 全文搜索：基于 SQLite FTS5
+- 子任务支持：任务拆分和层级关系
+- 周/月工时报表
+- 图表功能：甘特图、工时分布图
+
+
+
 ## [0.2.0] - 2024-09-10
 
 ### Added
