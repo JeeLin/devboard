@@ -161,7 +161,7 @@ CREATE VIRTUAL TABLE documents_fts USING fts5(
 - 任务模板
 - 图表批量导出
 
-### v0.5 — 同步
+### v0.5 — 同步 ✅ 已完成
 
 - Git 同步
 - WebDAV 同步

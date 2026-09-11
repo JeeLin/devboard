@@ -3,6 +3,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.5.0] - 2024-09-11
+
+### Added
+- Git 同步：~/.devboard/ 自动 commit/push
+- WebDAV 同步：支持 Nextcloud 等 WebDAV 服务器
+- Syncthing/SSH 外部同步
+
+
+
 ## [0.4.0] - 2024-09-11
 
 ### Added
