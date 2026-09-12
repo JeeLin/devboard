@@ -1,6 +1,6 @@
-use clap::Subcommand;
 use crate::db::{get_connection, run_migrations};
 use crate::models::tag;
+use clap::Subcommand;
 use std::path::PathBuf;
 
 fn get_db() -> crate::error::Result<(rusqlite::Connection, PathBuf)> {
@@ -36,36 +36,36 @@ pub enum TagArgs {
 pub fn handle(args: TagArgs) {
     let (conn, _) = match get_db() {
         Ok(v) => v,
-        Err(e) => { eprintln!("Error: {}", e); std::process::exit(1); }
+        Err(e) => {
+            eprintln!("Error: {}", e);
+            std::process::exit(1);
+        }
     };
     match args {
-        TagArgs::Add { name, color } => {
-            match tag::create_tag(&conn, &name, &color) {
-                Ok(t) => println!("Created tag '{}' (id: {}, color: {})", t.name, t.id, t.color),
-                Err(e) => eprintln!("Error: {}", e),
-            }
-        }
-        TagArgs::List => {
-            match tag::list_tags(&conn) {
-                Ok(tags) => {
-                    if tags.is_empty() {
-                        println!("No tags found.");
-                    } else {
-                        println!("{:<5} {:<20} {:<10}", "ID", "Name", "Color");
-                        println!("{}", "-".repeat(35));
-                        for t in &tags {
-                            println!("{:<5} {:<20} {:<10}", t.id, t.name, t.color);
-                        }
+        TagArgs::Add { name, color } => match tag::create_tag(&conn, &name, &color) {
+            Ok(t) => println!(
+                "Created tag '{}' (id: {}, color: {})",
+                t.name, t.id, t.color
+            ),
+            Err(e) => eprintln!("Error: {}", e),
+        },
+        TagArgs::List => match tag::list_tags(&conn) {
+            Ok(tags) => {
+                if tags.is_empty() {
+                    println!("No tags found.");
+                } else {
+                    println!("{:<5} {:<20} {:<10}", "ID", "Name", "Color");
+                    println!("{}", "-".repeat(35));
+                    for t in &tags {
+                        println!("{:<5} {:<20} {:<10}", t.id, t.name, t.color);
                     }
                 }
-                Err(e) => eprintln!("Error: {}", e),
             }
-        }
-        TagArgs::Delete { id } => {
-            match tag::delete_tag(&conn, id) {
-                Ok(()) => println!("Deleted tag {}", id),
-                Err(e) => eprintln!("Error: {}", e),
-            }
-        }
+            Err(e) => eprintln!("Error: {}", e),
+        },
+        TagArgs::Delete { id } => match tag::delete_tag(&conn, id) {
+            Ok(()) => println!("Deleted tag {}", id),
+            Err(e) => eprintln!("Error: {}", e),
+        },
     }
 }

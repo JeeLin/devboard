@@ -1,11 +1,11 @@
+#[allow(dead_code)]
+mod charts;
 mod cli;
 mod db;
 mod error;
 mod models;
-mod tui;
-#[allow(dead_code)]
-mod charts;
 mod sync;
+mod tui;
 
 use clap::Parser;
 use cli::{Cli, Commands};

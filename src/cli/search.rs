@@ -1,6 +1,6 @@
-use clap::Args;
 use crate::db::{get_connection, run_migrations};
 use crate::models::document;
+use clap::Args;
 use std::path::PathBuf;
 
 fn get_db() -> crate::error::Result<(rusqlite::Connection, PathBuf)> {
@@ -23,7 +23,10 @@ pub struct SearchArgs {
 pub fn handle(args: SearchArgs) {
     let (conn, _) = match get_db() {
         Ok(v) => v,
-        Err(e) => { eprintln!("Error: {}", e); std::process::exit(1); }
+        Err(e) => {
+            eprintln!("Error: {}", e);
+            std::process::exit(1);
+        }
     };
 
     match document::search_documents_fts(&conn, &args.query) {

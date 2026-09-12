@@ -1,6 +1,6 @@
-use clap::Subcommand;
 use crate::db::{get_connection, run_migrations};
-use crate::models::{template, task};
+use crate::models::{task, template};
+use clap::Subcommand;
 use std::path::PathBuf;
 
 fn get_db() -> crate::error::Result<(rusqlite::Connection, PathBuf)> {
@@ -60,49 +60,82 @@ pub enum TemplateArgs {
 pub fn handle(args: TemplateArgs) {
     let (conn, _) = match get_db() {
         Ok(v) => v,
-        Err(e) => { eprintln!("Error: {}", e); std::process::exit(1); }
+        Err(e) => {
+            eprintln!("Error: {}", e);
+            std::process::exit(1);
+        }
     };
     match args {
-        TemplateArgs::Add { name, task_type, title, description, priority, actor } => {
-            match template::create_template(&conn, &name, &task_type, &title, &description, &priority, &actor) {
+        TemplateArgs::Add {
+            name,
+            task_type,
+            title,
+            description,
+            priority,
+            actor,
+        } => {
+            match template::create_template(
+                &conn,
+                &name,
+                &task_type,
+                &title,
+                &description,
+                &priority,
+                &actor,
+            ) {
                 Ok(t) => println!("Created template '{}' (id: {})", t.name, t.id),
                 Err(e) => eprintln!("Error: {}", e),
             }
         }
-        TemplateArgs::List => {
-            match template::list_templates(&conn) {
-                Ok(templates) => {
-                    if templates.is_empty() {
-                        println!("No templates found.");
-                    } else {
-                        println!("{:<5} {:<20} {:<10} {:<30}", "ID", "Name", "Type", "Title Template");
-                        println!("{}", "-".repeat(65));
-                        for t in &templates {
-                            println!("{:<5} {:<20} {:<10} {:<30}", t.id, t.name, t.task_type, t.title_template);
-                        }
+        TemplateArgs::List => match template::list_templates(&conn) {
+            Ok(templates) => {
+                if templates.is_empty() {
+                    println!("No templates found.");
+                } else {
+                    println!(
+                        "{:<5} {:<20} {:<10} {:<30}",
+                        "ID", "Name", "Type", "Title Template"
+                    );
+                    println!("{}", "-".repeat(65));
+                    for t in &templates {
+                        println!(
+                            "{:<5} {:<20} {:<10} {:<30}",
+                            t.id, t.name, t.task_type, t.title_template
+                        );
                     }
                 }
-                Err(e) => eprintln!("Error: {}", e),
             }
-        }
-        TemplateArgs::Delete { id } => {
-            match template::delete_template(&conn, id) {
-                Ok(()) => println!("Deleted template {}", id),
-                Err(e) => eprintln!("Error: {}", e),
-            }
-        }
-        TemplateArgs::Create { template: tmpl_id, project, name } => {
-            match template::get_template(&conn, tmpl_id) {
-                Ok(tmpl) => {
-                    let title = tmpl.title_template.replace("{name}", &name);
-                    let description = tmpl.description_template.replace("{name}", &name);
-                    match task::create_task(&conn, project, None, &tmpl.task_type, &title, Some(&description), Some(&tmpl.default_actor)) {
-                        Ok(t) => println!("Created task '{}' (id: {}) from template '{}'", t.title, t.id, tmpl.name),
-                        Err(e) => eprintln!("Error creating task: {}", e),
-                    }
+            Err(e) => eprintln!("Error: {}", e),
+        },
+        TemplateArgs::Delete { id } => match template::delete_template(&conn, id) {
+            Ok(()) => println!("Deleted template {}", id),
+            Err(e) => eprintln!("Error: {}", e),
+        },
+        TemplateArgs::Create {
+            template: tmpl_id,
+            project,
+            name,
+        } => match template::get_template(&conn, tmpl_id) {
+            Ok(tmpl) => {
+                let title = tmpl.title_template.replace("{name}", &name);
+                let description = tmpl.description_template.replace("{name}", &name);
+                match task::create_task(
+                    &conn,
+                    project,
+                    None,
+                    &tmpl.task_type,
+                    &title,
+                    Some(&description),
+                    Some(&tmpl.default_actor),
+                ) {
+                    Ok(t) => println!(
+                        "Created task '{}' (id: {}) from template '{}'",
+                        t.title, t.id, tmpl.name
+                    ),
+                    Err(e) => eprintln!("Error creating task: {}", e),
                 }
-                Err(e) => eprintln!("Error: {}", e),
             }
-        }
+            Err(e) => eprintln!("Error: {}", e),
+        },
     }
 }

@@ -1,9 +1,10 @@
 use crate::error::Result;
 use rusqlite::Connection;
 
-const MIGRATIONS: &[(&str, &str)] = &[(
-    "001_initial",
-    r#"
+const MIGRATIONS: &[(&str, &str)] = &[
+    (
+        "001_initial",
+        r#"
         CREATE TABLE IF NOT EXISTS projects (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
@@ -83,8 +84,11 @@ const MIGRATIONS: &[(&str, &str)] = &[(
             version TEXT PRIMARY KEY,
             applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
-    "#),
-    ("005_tags", r#"
+    "#,
+    ),
+    (
+        "005_tags",
+        r#"
         CREATE TABLE IF NOT EXISTS tags (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL UNIQUE,
@@ -104,8 +108,11 @@ const MIGRATIONS: &[(&str, &str)] = &[(
             FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE,
             FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
         );
-    "#),
-    ("006_templates", r#"
+    "#,
+    ),
+    (
+        "006_templates",
+        r#"
         CREATE TABLE IF NOT EXISTS task_templates (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
@@ -116,7 +123,8 @@ const MIGRATIONS: &[(&str, &str)] = &[(
             default_actor TEXT DEFAULT 'human',
             created_at DATETIME NOT NULL DEFAULT (datetime('now'))
         );
-    "#),
+    "#,
+    ),
 ];
 
 pub fn run_migrations(conn: &Connection) -> Result<()> {

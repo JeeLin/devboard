@@ -109,12 +109,15 @@ pub fn get_daily_time_summary(
     Ok(stats)
 }
 
-pub fn get_weekly_summary(conn: &DbConn, start_date: chrono::NaiveDate) -> Result<Vec<(String, i64)>> {
+pub fn get_weekly_summary(
+    conn: &DbConn,
+    start_date: chrono::NaiveDate,
+) -> Result<Vec<(String, i64)>> {
     let end_date = start_date + chrono::Duration::days(7);
     let mut stmt = conn.prepare(
         "SELECT actor, SUM(duration) as total FROM time_entries 
          WHERE date(created_at) >= ?1 AND date(created_at) < ?2 
-         GROUP BY actor ORDER BY actor"
+         GROUP BY actor ORDER BY actor",
     )?;
     let start_str = start_date.format("%Y-%m-%d").to_string();
     let end_str = end_date.format("%Y-%m-%d").to_string();
@@ -135,11 +138,11 @@ pub fn get_monthly_summary(conn: &DbConn, year: i32, month: u32) -> Result<Vec<(
         chrono::NaiveDate::from_ymd_opt(year, month + 1, 1)
     }
     .ok_or_else(|| DevBoardError::InvalidInput("Invalid date".to_string()))?;
-    
+
     let mut stmt = conn.prepare(
         "SELECT actor, SUM(duration) as total FROM time_entries 
          WHERE date(created_at) >= ?1 AND date(created_at) < ?2 
-         GROUP BY actor ORDER BY actor"
+         GROUP BY actor ORDER BY actor",
     )?;
     let start_str = start_date.format("%Y-%m-%d").to_string();
     let end_str = end_date.format("%Y-%m-%d").to_string();

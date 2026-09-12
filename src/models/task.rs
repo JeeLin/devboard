@@ -347,12 +347,12 @@ pub fn get_task_tree(conn: &DbConn, task_id: i64) -> Result<Vec<Task>> {
     let mut result = Vec::new();
     let task = get_task(conn, task_id)?;
     result.push(task);
-    
+
     let children = list_subtasks(conn, task_id)?;
     for child in children {
         let mut subtree = get_task_tree(conn, child.id)?;
         result.append(&mut subtree);
     }
-    
+
     Ok(result)
 }

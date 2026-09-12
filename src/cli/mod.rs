@@ -1,19 +1,23 @@
 use clap::{Parser, Subcommand};
 
-pub mod project;
-pub mod milestone;
-pub mod task;
-pub mod time;
-pub mod doc;
-pub mod search;
-pub mod tag;
-pub mod note;
-pub mod template;
 pub mod chart;
+pub mod doc;
+pub mod milestone;
+pub mod note;
+pub mod project;
+pub mod search;
 pub mod sync;
+pub mod tag;
+pub mod task;
+pub mod template;
+pub mod time;
 
 #[derive(Parser)]
-#[command(name = "devboard", version, about = "AI-driven project management tool")]
+#[command(
+    name = "devboard",
+    version,
+    about = "AI-driven project management tool"
+)]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,

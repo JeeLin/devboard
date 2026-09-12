@@ -31,25 +31,27 @@ pub enum ChartCommands {
 
 pub fn handle(args: ChartCommands) {
     match args {
-        ChartCommands::Export { chart_type, format: _, output, date } => {
+        ChartCommands::Export {
+            chart_type,
+            format: _,
+            output,
+            date,
+        } => {
             let output_path = PathBuf::from(&output);
             match chart_type.as_str() {
-                "gantt" => {
-                    match crate::charts::gantt::generate_gantt(0) {
-                        Ok(svg) => {
-                            std::fs::write(&output_path, svg).unwrap_or_else(|e| {
-                                eprintln!("Error writing file: {}", e);
-                                std::process::exit(1);
-                            });
-                            println!("Exported gantt chart to {}", output);
-                        }
-                        Err(e) => eprintln!("Error generating chart: {}", e),
+                "gantt" => match crate::charts::gantt::generate_gantt(0) {
+                    Ok(svg) => {
+                        std::fs::write(&output_path, svg).unwrap_or_else(|e| {
+                            eprintln!("Error writing file: {}", e);
+                            std::process::exit(1);
+                        });
+                        println!("Exported gantt chart to {}", output);
                     }
-                }
+                    Err(e) => eprintln!("Error generating chart: {}", e),
+                },
                 "distribution" => {
-                    let target_date = date.unwrap_or_else(|| {
-                        chrono::Local::now().format("%Y-%m-%d").to_string()
-                    });
+                    let target_date =
+                        date.unwrap_or_else(|| chrono::Local::now().format("%Y-%m-%d").to_string());
                     match crate::charts::distribution::generate_distribution(&target_date) {
                         Ok(svg) => {
                             std::fs::write(&output_path, svg).unwrap_or_else(|e| {

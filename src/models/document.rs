@@ -30,7 +30,10 @@ impl std::str::FromStr for DocStatus {
             "review" => Ok(DocStatus::Review),
             "published" => Ok(DocStatus::Published),
             "archived" => Ok(DocStatus::Archived),
-            _ => Err(DevBoardError::InvalidInput(format!("Invalid doc status: {}", s))),
+            _ => Err(DevBoardError::InvalidInput(format!(
+                "Invalid doc status: {}",
+                s
+            ))),
         }
     }
 }
@@ -63,7 +66,12 @@ impl Document {
 
 pub const DOC_COLUMNS: &str = "id, task_id, title, content, status, created_at, updated_at";
 
-pub fn create_document(conn: &DbConn, task_id: i64, title: &str, content: &str) -> Result<Document> {
+pub fn create_document(
+    conn: &DbConn,
+    task_id: i64,
+    title: &str,
+    content: &str,
+) -> Result<Document> {
     let mut stmt = conn.prepare(&format!(
         "INSERT INTO documents (task_id, title, content, status, created_at, updated_at) VALUES (?1, ?2, ?3, 'Draft', datetime('now'), datetime('now')) RETURNING {}",
         DOC_COLUMNS

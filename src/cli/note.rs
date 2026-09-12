@@ -59,9 +59,8 @@ pub fn handle(args: NoteArgs) {
         }
         NoteArgs::List { date } => {
             let notes_dir = get_notes_dir();
-            let target_date = date.unwrap_or_else(|| {
-                chrono::Local::now().format("%Y-%m-%d").to_string()
-            });
+            let target_date =
+                date.unwrap_or_else(|| chrono::Local::now().format("%Y-%m-%d").to_string());
             let note_file = notes_dir.join(format!("{}.md", target_date));
 
             if !note_file.exists() {

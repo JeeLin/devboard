@@ -173,14 +173,20 @@ pub fn handle(args: TimeCommands) {
 pub fn handle_weekly_report(start_date: Option<String>) {
     let (conn, _) = match get_db() {
         Ok(v) => v,
-        Err(e) => { eprintln!("Error: {}", e); return; }
+        Err(e) => {
+            eprintln!("Error: {}", e);
+            return;
+        }
     };
 
     let today = chrono::Local::now().format("%Y-%m-%d").to_string();
     let target_date = start_date.as_deref().unwrap_or(&today);
     let date_naive = match chrono::NaiveDate::parse_from_str(target_date, "%Y-%m-%d") {
         Ok(d) => d,
-        Err(_) => { eprintln!("Invalid date format: {}", target_date); return; }
+        Err(_) => {
+            eprintln!("Invalid date format: {}", target_date);
+            return;
+        }
     };
 
     println!("=== Weekly Report (starting {}) ===\n", target_date);
@@ -207,14 +213,20 @@ pub fn handle_weekly_report(start_date: Option<String>) {
 pub fn handle_monthly_report(year: Option<i32>, month: Option<u32>) {
     let (conn, _) = match get_db() {
         Ok(v) => v,
-        Err(e) => { eprintln!("Error: {}", e); return; }
+        Err(e) => {
+            eprintln!("Error: {}", e);
+            return;
+        }
     };
 
     let now = chrono::Local::now();
     let target_year = year.unwrap_or(now.format("%Y").to_string().parse().unwrap());
     let target_month = month.unwrap_or(now.format("%m").to_string().parse().unwrap());
 
-    println!("=== Monthly Report for {}-{:02} ===\n", target_year, target_month);
+    println!(
+        "=== Monthly Report for {}-{:02} ===\n",
+        target_year, target_month
+    );
     match time_entry::get_monthly_summary(&conn, target_year, target_month) {
         Ok(stats) => {
             if stats.is_empty() {

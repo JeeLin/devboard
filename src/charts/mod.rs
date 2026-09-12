@@ -1,2 +1,2 @@
-pub mod gantt;
 pub mod distribution;
+pub mod gantt;
