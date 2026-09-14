@@ -9,16 +9,43 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  release:
-    name: Build Release
-    runs-on: ubuntu-latest
+  build:
+    name: Build (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
     permissions:
       contents: write
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact: devboard-linux-x86_64
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            artifact: devboard-linux-aarch64
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            artifact: devboard-macos-arm64
+          - os: macos-13
+            target: x86_64-apple-darwin
+            artifact: devboard-macos-x86_64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact: devboard-windows-x86_64.exe
     steps:
       - uses: actions/checkout@v4
       
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      
+      - name: Install cross-compilation tools (Linux ARM64)
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+          echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
       
       - name: Cache cargo
         uses: actions/cache@v4
@@ -27,7 +54,51 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-${{ matrix.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      
+      - name: Build release
+        run: cargo build --release --target ${{ matrix.target }}
+      
+      - name: Run tests
+        run: cargo test
+      
+      - name: Prepare release package
+        run: |
+          mkdir -p release
+          cp README.md release/
+          cp CHANGELOG.md release/ 2>/dev/null || true
+          cp -r skills release/ 2>/dev/null || true
+      
+      - name: Add binary (Linux/macOS)
+        if: matrix.os != 'windows-latest'
+        run: |
+          cp target/${{ matrix.target }}/release/devboard release/
+      
+      - name: Add binary (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          cp target/${{ matrix.target }}/release/devboard.exe release/
+      
+      - name: Create ZIP archive
+        run: |
+          cd release
+          zip -r ../${{ matrix.artifact }}.zip .
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact }}.zip
+          retention-days: 1
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
       
       - name: Get version from tag
         id: version
@@ -35,25 +106,10 @@ jobs:
           VERSION=${GITHUB_REF#refs/tags/}
           echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
       
-      - name: Build release
-        run: cargo build --release
-      
-      - name: Run tests
-        run: cargo test
-      
-      - name: Prepare release assets
-        run: |
-          mkdir -p release
-          cp target/release/devboard release/
-          cp README.md release/
-          cp LICENSE-MIT release/ 2>/dev/null || true
-          cp CHANGELOG.md release/ 2>/dev/null || true
-          cp -r skills release/ 2>/dev/null || true
-      
-      - name: Create ZIP archive
-        run: |
-          cd release
-          zip -r ../devboard-${{ steps.version.outputs.VERSION }}-linux-x86_64.zip .
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
       
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -62,7 +118,7 @@ jobs:
           name: DevBoard ${{ steps.version.outputs.VERSION }}
           body: |
             AI 驱动的项目管理工具
-            
+
             ## 功能
             - 项目/里程碑/任务管理
             - 时间追踪与报表
@@ -70,14 +126,27 @@ jobs:
             - 全文搜索 (FTS5)
             - 标签、模板、图表
             - Git/WebDAV 同步
-            
+
+            ## 下载
+
+            | 平台 | 文件 |
+            |------|------|
+            | Linux x86_64 | `devboard-linux-x86_64.zip` |
+            | Linux ARM64 | `devboard-linux-aarch64.zip` |
+            | macOS ARM64 (Apple Silicon) | `devboard-macos-arm64.zip` |
+            | macOS x86_64 (Intel) | `devboard-macos-x86_64.zip` |
+            | Windows x86_64 | `devboard-windows-x86_64.zip` |
+
             ## 安装
+
             ```bash
-            # Linux
-            unzip devboard-${{ steps.version.outputs.VERSION }}-linux-x86_64.zip
+            # Linux/macOS
+            unzip devboard-*.zip
             sudo mv devboard /usr/local/bin/
-            
+
             # 或从源码构建
             cargo install --path .
+
+            # Windows: 解压后将 devboard.exe 添加到 PATH
             ```
-          files: devboard-${{ steps.version.outputs.VERSION }}-linux-x86_64.zip
+          files: artifacts/**/*.zip
